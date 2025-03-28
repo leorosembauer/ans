@@ -1,6 +1,6 @@
-package intuitive.ans.extracao.controller;
+package intuitive.ans.controller;
 
-import intuitive.ans.extracao.service.DownloadAndZipAnexosService;
+import intuitive.ans.service.DownloadAndZipAnexosService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
