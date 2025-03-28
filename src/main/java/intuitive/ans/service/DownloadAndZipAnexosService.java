@@ -1,4 +1,4 @@
-package intuitive.ans.extracao.service;
+package intuitive.ans.service;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,14 +13,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Service
 public class DownloadAndZipAnexosService {
     private static final String URL_ANS = "https://www.gov.br/ans/pt-br/acesso-a-informacao/participacao-da-sociedade/atualizacao-do-rol-de-procedimentos";
     private static final String DOWNLOAD_DIR = "downloads/";
     private static final String ZIP_FILE = "downloads/anexos.zip";
+
+    private final FileZipper fileZipper;
+
+    public DownloadAndZipAnexosService(FileZipper fileZipper) {
+        this.fileZipper = fileZipper;
+    }
 
     public String baixarECompactarAnexos() {
         try {
@@ -64,7 +68,9 @@ public class DownloadAndZipAnexosService {
                 return "❌ Não foi possível encontrar todos os anexos.";
             }
 
-            compactarEmZip(ZIP_FILE, arquivosBaixados);
+            // Chama a classe FileZipper para compactar os arquivos
+            fileZipper.zipFiles(ZIP_FILE, arquivosBaixados);
+
             return "✅ Download concluído! Arquivos compactados em: " + ZIP_FILE;
 
         } catch (IOException e) {
@@ -89,30 +95,6 @@ public class DownloadAndZipAnexosService {
             }
         } catch (IOException e) {
             System.err.println("❌ Erro ao baixar o arquivo: " + fileUrl + " - " + e.getMessage());
-        }
-    }
-
-    private void compactarEmZip(String zipFilePath, List<String> filePaths) {
-        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
-             ZipOutputStream zos = new ZipOutputStream(fos)) {
-
-            for (String filePath : filePaths) {
-                File file = new File(filePath);
-                if (!file.exists()) continue;
-
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    ZipEntry zipEntry = new ZipEntry(file.getName());
-                    zos.putNextEntry(zipEntry);
-
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = fis.read(buffer)) != -1) {
-                        zos.write(buffer, 0, bytesRead);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("❌ Erro ao compactar arquivo ZIP: " + e.getMessage());
         }
     }
 }
